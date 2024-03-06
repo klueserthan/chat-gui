@@ -6,7 +6,8 @@ from datetime import datetime
 def download_chat() -> str:
     """Return chat history as a string."""
     try:
-        return "\n".join(f"{m['role']}: {m['content']}" for m in st.session_state.messages)
+        history = "\n".join(f"{m['role']}: {m['content']}" for m in st.session_state.messages)
+        return history
     except AttributeError:
         return ""
     
@@ -24,40 +25,6 @@ if "messages" not in st.session_state:
 
 ### DEFINE APP LAYOUT ###
 st.title("ChatGPT 🤖🗨️")
-
-# Define sidebar where user can select model and temperature
-with st.sidebar:
-    st.image("./static/Universitaet-st-gallen.svg")
-    
-    #add some vertical space here
-    st.write("")
-    
-    # create a button to clear the chat history
-    if st.button("Chat löschen"):
-        st.session_state.messages = []
-        st.experimental_rerun()
-        
-    st.download_button(
-        "Chatverlauf herunterladen",
-        data=download_chat(),
-        file_name=create_chat_name_download(),
-        mime="text/plain",
-    )
-    
-    st.subheader("Modell")
-    st.session_state["openai_model"] = st.selectbox(
-        "Wählen Sie ein Modell aus:",
-        ["gpt-3.5-turbo", "gpt-4"]
-    )
-    
-    st.subheader("Temperatur")
-    st.session_state["openai_temperature"] = st.slider(
-        "Wie 'kreativ' soll die Antwort sein?",
-        min_value=0.0,
-        max_value=1.0,
-        value=0.7,
-        step=0.1,
-    )
 
 ### DEFINE APP BEHAVIOR ###
 
@@ -86,6 +53,39 @@ if prompt := st.chat_input("Hallo! 👋"):
             stream=True,
         )
         response = st.write_stream(stream)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+
+# Define sidebar where user can select model and temperature
+with st.sidebar:
+    st.image("./static/Universitaet-st-gallen.svg")
     
+    #add some vertical space here
+    st.write("")
     
+    # create a button to clear the chat history
+    if st.button("Chat löschen"):
+        st.session_state.messages = []
+        st.rerun()
+        
+    st.download_button(
+        "Chatverlauf herunterladen",
+        data=download_chat(),
+        file_name=create_chat_name_download(),
+        mime="text/plain",
+    )
+    
+    st.subheader("Modell")
+    st.session_state["openai_model"] = st.selectbox(
+        "Wählen Sie ein Modell aus:",
+        ["gpt-3.5-turbo", "gpt-4"]
+    )
+    
+    st.subheader("Temperatur")
+    st.session_state["openai_temperature"] = st.slider(
+        "Wie 'kreativ' soll die Antwort sein?",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.7,
+        step=0.1,
+    )
