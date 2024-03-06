@@ -6,7 +6,7 @@ authors = ["K. Jonathan Klüser <jonathan.klueser@live.de>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.10.8"
+python = "~3.10"
 streamlit = "^1.31.1"
 openai = "^1.13.3"
 
