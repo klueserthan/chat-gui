@@ -1,10 +1,29 @@
 import streamlit as st
 from openai import OpenAI
+from datetime import datetime
 
-st.title("ChatGPT 🤖🗨️")
+### DEFINE FUNCTIONS ###
+def download_chat() -> str:
+    """Return chat history as a string."""
+    try:
+        return "\n".join(f"{m['role']}: {m['content']}" for m in st.session_state.messages)
+    except AttributeError:
+        return ""
+    
+def create_chat_name_download(base_name="Chat") -> str:
+    """Return a unique filename for a chat download."""
+    return f"{base_name} {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt"
 
+### INITIALIZE APP ###
 # Set OpenAI API key from Streamlit secrets
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+### DEFINE APP LAYOUT ###
+st.title("ChatGPT 🤖🗨️")
 
 # Define sidebar where user can select model and temperature
 with st.sidebar:
@@ -18,11 +37,10 @@ with st.sidebar:
         st.session_state.messages = []
         st.experimental_rerun()
         
-    # create a button to download the chat history
     st.download_button(
         "Chatverlauf herunterladen",
-        "\n".join(f"{m['role']}: {m['content']}" for m in st.session_state.messages),
-        file_name="chat.txt",
+        data=download_chat(),
+        file_name=create_chat_name_download(),
         mime="text/plain",
     )
     
@@ -40,12 +58,8 @@ with st.sidebar:
         value=0.7,
         step=0.1,
     )
-    
 
-
-# Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+### DEFINE APP BEHAVIOR ###
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
