@@ -1,4 +1,5 @@
 import streamlit as st
+from st_copy_to_clipboard import st_copy_to_clipboard
 from openai import OpenAI
 from datetime import datetime
 import os
@@ -94,7 +95,9 @@ if st.session_state.name and st.session_state.disabled:
             )
             response = st.write_stream(stream)
             st.session_state.messages.append({"role": "assistant", "content": response})
-            save_chat_history()
+            
+    # A button that copies the chat history to the clipboard
+    st_copy_to_clipboard(download_chat(), before_copy_label="Copy Chat", after_copy_label="✅ Copied!")
 
 
 # Define sidebar where user can select model and temperature
